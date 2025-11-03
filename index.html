@@ -10,6 +10,7 @@
     flex-direction: column;
     align-items: center;
     margin-top: 50px;
+    position: relative;
   }
 
   #puzzle-container {
@@ -42,6 +43,45 @@
     display: grid;
     grid-template-columns: repeat(3, 100px);
     grid-gap: 5px;
+    margin-bottom: 20px;
+  }
+
+  #nextPhaseBtn {
+    margin-top: 20px;
+    padding: 8px 16px;
+    font-size: 16px;
+    display: none;
+    cursor: pointer;
+  }
+
+  /* Caixa de mensagem personalizada */
+  #messageBox {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff3e0;
+    border: 3px solid #ffa726;
+    border-radius: 12px;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+    font-size: 16px;
+    color: #ff5722;
+    display: none;
+    z-index: 1000;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  }
+
+  #messageBox button {
+    margin-top: 15px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background-color: #ffa726;
+    color: white;
   }
 </style>
 </head>
@@ -50,6 +90,7 @@
 <h1>Complete o Puzzle!</h1>
 
 <div id="puzzle-container">
+  <div class="slot" data-id="0"></div>
   <div class="slot" data-id="1"></div>
   <div class="slot" data-id="2"></div>
   <div class="slot" data-id="3"></div>
@@ -58,50 +99,66 @@
   <div class="slot" data-id="6"></div>
   <div class="slot" data-id="7"></div>
   <div class="slot" data-id="8"></div>
-  <div class="slot" data-id="9"></div>
 </div>
 
-<div class="pieces-container">
-  <img src="nossas fotos/1.png" class="piece" draggable="true" data-id="1">
-  <img src="nossas fotos/2.png" class="piece" draggable="true" data-id="2">
-  <img src="nossas fotos/3.png" class="piece" draggable="true" data-id="3">
-  <img src="nossas fotos/4.png" class="piece" draggable="true" data-id="4">
-  <img src="nossas fotos/5.png" class="piece" draggable="true" data-id="5">
-  <img src="nossas fotos/6.png" class="piece" draggable="true" data-id="6">
-  <img src="nossas fotos/7.png" class="piece" draggable="true" data-id="7">
-  <img src="nossas fotos/8.png" class="piece" draggable="true" data-id="8">
-  <img src="nossas fotos/9.png" class="piece" draggable="true" data-id="9">
+<div class="pieces-container"></div>
+<button id="nextPhaseBtn">Próxima Fase</button>
+
+<!-- Caixa de mensagem -->
+<div id="messageBox">
+  <div id="messageText"></div>
+  <button id="closeMsgBtn">Ok</button>
 </div>
 
 <script>
-const pieces = document.querySelectorAll('.piece');
+let fase = 0;
+const totalFases = 3;
+const piecesContainer = document.querySelector('.pieces-container');
 const slots = document.querySelectorAll('.slot');
+const nextPhaseBtn = document.getElementById('nextPhaseBtn');
+const messageBox = document.getElementById('messageBox');
+const messageText = document.getElementById('messageText');
+const closeMsgBtn = document.getElementById('closeMsgBtn');
 let draggedPiece = null;
 
-pieces.forEach(piece => {
-  piece.addEventListener('dragstart', dragStart);
-});
+// Função para carregar puzzle
+function loadPhase(fase) {
+  piecesContainer.innerHTML = "";
+  slots.forEach(slot => {
+    slot.innerHTML = "";
+    slot.classList.remove('correct');
+  });
+  nextPhaseBtn.style.display = "none";
+  draggedPiece = null;
 
-slots.forEach(slot => {
-  slot.addEventListener('dragover', dragOver);
-  slot.addEventListener('drop', dropPiece);
-});
-
-function dragStart(e) {
-  draggedPiece = this;
-}
-
-function dragOver(e) {
-  e.preventDefault();
-}
-
-function dropPiece(e) {
-  if (!this.hasChildNodes()) {
-    this.appendChild(draggedPiece);
-    checkPuzzle();
+  for (let i = 0; i < 9; i++) {
+    const img = document.createElement("img");
+    img.src = `nossas fotos/fase${fase}/piece_${i}.png`;
+    img.classList.add("piece");
+    img.draggable = true;
+    img.dataset.id = i.toString();
+    piecesContainer.appendChild(img);
   }
+
+  // Adiciona eventos dragstart
+  piecesContainer.querySelectorAll('.piece').forEach(img => {
+    img.addEventListener('dragstart', e => draggedPiece = img);
+  });
 }
 
+// Drag & Drop para slots
+slots.forEach(slot => {
+  slot.addEventListener('dragover', e => e.preventDefault());
+  slot.addEventListener('drop', function() {
+    if (!this.hasChildNodes() && draggedPiece) {
+      this.appendChild(draggedPiece);
+      draggedPiece = null;
+      checkPuzzle();
+    }
+  });
+});
+
+// Verifica se o puzzle está completo
 function checkPuzzle() {
   let correct = 0;
   slots.forEach(slot => {
@@ -115,9 +172,30 @@ function checkPuzzle() {
   });
 
   if (correct === slots.length) {
-    setTimeout(() => alert('Parabéns! 💛 Você completou o puzzle!'), 100);
+    // Mostra caixa de mensagem personalizada
+    messageText.innerHTML = `Você conseguiu e eu queria dizer que eu terei quantos primeiros dates forem precisos com você!<br><br>Parabéns! 💛 Você completou a fase ${fase + 1}!`;
+    messageBox.style.display = 'block';
   }
 }
+
+// Fechar a caixa de mensagem
+closeMsgBtn.addEventListener('click', () => {
+  messageBox.style.display = 'none';
+  if(fase < totalFases - 1){
+    nextPhaseBtn.style.display = "inline-block";
+  }
+});
+
+// Botão próxima fase
+nextPhaseBtn.addEventListener('click', () => {
+  fase++;
+  if(fase < totalFases){
+    loadPhase(fase);
+  }
+});
+
+// Carrega primeira fase
+loadPhase(fase);
 </script>
 
 </body>
