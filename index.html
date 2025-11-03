@@ -1,202 +1,273 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Puzzle de Fotos</title>
-<style>
-  body {
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 50px;
-    position: relative;
-  }
-
-  #puzzle-container {
-    display: grid;
-    grid-template-columns: repeat(3, 100px);
-    grid-gap: 5px;
-    margin-bottom: 20px;
-  }
-
-  .slot {
-    width: 100px;
-    height: 100px;
-    border: 2px dashed #aaa;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .slot.correct {
-    border-color: green;
-  }
-
-  .piece {
-    width: 100px;
-    height: 100px;
-    cursor: grab;
-  }
-
-  .pieces-container {
-    display: grid;
-    grid-template-columns: repeat(3, 100px);
-    grid-gap: 5px;
-    margin-bottom: 20px;
-  }
-
-  #nextPhaseBtn {
-    margin-top: 20px;
-    padding: 8px 16px;
-    font-size: 16px;
-    display: none;
-    cursor: pointer;
-  }
-
-  /* Caixa de mensagem personalizada */
-  #messageBox {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff3e0;
-    border: 3px solid #ffa726;
-    border-radius: 12px;
-    padding: 20px;
-    width: 300px;
-    text-align: center;
-    font-size: 16px;
-    color: #ff5722;
-    display: none;
-    z-index: 1000;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-  }
-
-  #messageBox button {
-    margin-top: 15px;
-    padding: 6px 12px;
-    font-size: 14px;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    background-color: #ffa726;
-    color: white;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quebra-Cabeça de Fotos - Fase Um</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .puzzle-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 5px;
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            padding: 5px;
+            background-color: #ecf0f1;
+        }
+        
+        .puzzle-piece {
+            width: 100%;
+            height: 100%;
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .puzzle-piece:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+        
+        .empty {
+            background-color: #bdc3c7;
+            cursor: default;
+        }
+        
+        .empty:hover {
+            background-color: #bdc3c7;
+            transform: none;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #27ae60;
+        }
+        
+        #shuffle-btn {
+            background-color: #e74c3c;
+        }
+        
+        #shuffle-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            min-height: 30px;
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+            text-align: left;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Quebra-Cabeça de Fotos - Fase Um</h1>
+        <p>Organize as peças numeradas de 0 a 8 na ordem correta!</p>
+        
+        <div class="puzzle-board" id="puzzle-board">
+            <!-- As peças serão geradas dinamicamente pelo JavaScript -->
+        </div>
+        
+        <div class="controls">
+            <button id="shuffle-btn">Embaralhar</button>
+            <button id="reset-btn">Reiniciar</button>
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="instructions">
+            <h3>Como jogar:</h3>
+            <p>1. Clique em uma peça adjacente ao espaço vazio para movê-la.</p>
+            <p>2. Organize as peças na ordem numérica crescente (0-8).</p>
+            <p>3. A peça 0 deve estar no canto inferior direito para vencer.</p>
+        </div>
+    </div>
 
-<h1>Complete o Puzzle!</h1>
-
-<div id="puzzle-container">
-  <div class="slot" data-id="0"></div>
-  <div class="slot" data-id="1"></div>
-  <div class="slot" data-id="2"></div>
-  <div class="slot" data-id="3"></div>
-  <div class="slot" data-id="4"></div>
-  <div class="slot" data-id="5"></div>
-  <div class="slot" data-id="6"></div>
-  <div class="slot" data-id="7"></div>
-  <div class="slot" data-id="8"></div>
-</div>
-
-<div class="pieces-container"></div>
-<button id="nextPhaseBtn">Próxima Fase</button>
-
-<!-- Caixa de mensagem -->
-<div id="messageBox">
-  <div id="messageText"></div>
-  <button id="closeMsgBtn">Ok</button>
-</div>
-
-<script>
-let fase = 0;
-const totalFases = 3;
-const piecesContainer = document.querySelector('.pieces-container');
-const slots = document.querySelectorAll('.slot');
-const nextPhaseBtn = document.getElementById('nextPhaseBtn');
-const messageBox = document.getElementById('messageBox');
-const messageText = document.getElementById('messageText');
-const closeMsgBtn = document.getElementById('closeMsgBtn');
-let draggedPiece = null;
-
-// Função para carregar puzzle
-function loadPhase(fase) {
-  piecesContainer.innerHTML = "";
-  slots.forEach(slot => {
-    slot.innerHTML = "";
-    slot.classList.remove('correct');
-  });
-  nextPhaseBtn.style.display = "none";
-  draggedPiece = null;
-
-  for (let i = 0; i < 9; i++) {
-    const img = document.createElement("img");
-    img.src = `fase${fase}/piece_${i}.png`; // <-- caminho atualizado
-    img.classList.add("piece");
-    img.draggable = true;
-    img.dataset.id = i.toString();
-    piecesContainer.appendChild(img);
-  }
-
-  // Adiciona eventos dragstart
-  piecesContainer.querySelectorAll('.piece').forEach(img => {
-    img.addEventListener('dragstart', e => draggedPiece = img);
-  });
-}
-
-// Drag & Drop para slots
-slots.forEach(slot => {
-  slot.addEventListener('dragover', e => e.preventDefault());
-  slot.addEventListener('drop', function() {
-    if (!this.hasChildNodes() && draggedPiece) {
-      this.appendChild(draggedPiece);
-      draggedPiece = null;
-      checkPuzzle();
-    }
-  });
-});
-
-// Verifica se o puzzle está completo
-function checkPuzzle() {
-  let correct = 0;
-  slots.forEach(slot => {
-    const piece = slot.firstChild;
-    if (piece && piece.dataset.id === slot.dataset.id) {
-      slot.classList.add('correct');
-      correct++;
-    } else {
-      slot.classList.remove('correct');
-    }
-  });
-
-  if (correct === slots.length) {
-    // Mostra caixa de mensagem personalizada
-    messageText.innerHTML = `Você conseguiu e eu queria dizer que eu terei quantos primeiros dates forem precisos com você!<br><br>Parabéns! 💛 Você completou a fase ${fase + 1}!`;
-    messageBox.style.display = 'block';
-  }
-}
-
-// Fechar a caixa de mensagem
-closeMsgBtn.addEventListener('click', () => {
-  messageBox.style.display = 'none';
-  if(fase < totalFases - 1){
-    nextPhaseBtn.style.display = "inline-block";
-  }
-});
-
-// Botão próxima fase
-nextPhaseBtn.addEventListener('click', () => {
-  fase++;
-  if(fase < totalFases){
-    loadPhase(fase);
-  }
-});
-
-// Carrega primeira fase
-loadPhase(fase);
-</script>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const puzzleBoard = document.getElementById('puzzle-board');
+            const shuffleBtn = document.getElementById('shuffle-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const messageEl = document.getElementById('message');
+            
+            let pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+            let emptyIndex = 0; // A peça 0 é o espaço vazio
+            
+            // Inicializar o tabuleiro
+            function initializeBoard() {
+                puzzleBoard.innerHTML = '';
+                pieces.forEach((piece, index) => {
+                    const pieceElement = document.createElement('div');
+                    pieceElement.className = 'puzzle-piece';
+                    if (piece === 0) {
+                        pieceElement.classList.add('empty');
+                        pieceElement.textContent = '';
+                    } else {
+                        pieceElement.textContent = piece;
+                    }
+                    pieceElement.dataset.index = index;
+                    pieceElement.addEventListener('click', handlePieceClick);
+                    puzzleBoard.appendChild(pieceElement);
+                });
+                updateMessage('');
+            }
+            
+            // Lidar com o clique em uma peça
+            function handlePieceClick(event) {
+                const clickedIndex = parseInt(event.target.dataset.index);
+                
+                // Verificar se a peça clicada é adjacente ao espaço vazio
+                if (isAdjacent(clickedIndex, emptyIndex)) {
+                    // Trocar as posições
+                    swapPieces(clickedIndex, emptyIndex);
+                    emptyIndex = clickedIndex;
+                    
+                    // Verificar se o jogador venceu
+                    if (checkWin()) {
+                        updateMessage('Parabéns! Você completou o quebra-cabeça!');
+                    }
+                }
+            }
+            
+            // Verificar se duas peças são adjacentes
+            function isAdjacent(index1, index2) {
+                const row1 = Math.floor(index1 / 3);
+                const col1 = index1 % 3;
+                const row2 = Math.floor(index2 / 3);
+                const col2 = index2 % 3;
+                
+                return (Math.abs(row1 - row2) === 1 && col1 === col2) || 
+                       (Math.abs(col1 - col2) === 1 && row1 === row2);
+            }
+            
+            // Trocar duas peças de posição
+            function swapPieces(index1, index2) {
+                [pieces[index1], pieces[index2]] = [pieces[index2], pieces[index1]];
+                updateBoard();
+            }
+            
+            // Atualizar o tabuleiro visualmente
+            function updateBoard() {
+                const pieceElements = puzzleBoard.querySelectorAll('.puzzle-piece');
+                pieceElements.forEach((element, index) => {
+                    const pieceValue = pieces[index];
+                    if (pieceValue === 0) {
+                        element.classList.add('empty');
+                        element.textContent = '';
+                    } else {
+                        element.classList.remove('empty');
+                        element.textContent = pieceValue;
+                    }
+                    element.dataset.index = index;
+                });
+            }
+            
+            // Verificar se o jogador venceu
+            function checkWin() {
+                for (let i = 0; i < pieces.length - 1; i++) {
+                    if (pieces[i] !== i + 1) {
+                        return false;
+                    }
+                }
+                return pieces[8] === 0;
+            }
+            
+            // Embaralhar as peças
+            function shufflePieces() {
+                do {
+                    // Embaralhar usando o algoritmo de Fisher-Yates
+                    for (let i = pieces.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
+                    }
+                    
+                    // Encontrar a posição do espaço vazio
+                    emptyIndex = pieces.indexOf(0);
+                } while (checkWin()); // Garantir que não embaralhe para uma posição vencedora
+                
+                updateBoard();
+                updateMessage('');
+            }
+            
+            // Reiniciar o jogo
+            function resetGame() {
+                pieces = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+                emptyIndex = 0;
+                updateBoard();
+                updateMessage('');
+            }
+            
+            // Atualizar a mensagem
+            function updateMessage(text) {
+                messageEl.textContent = text;
+            }
+            
+            // Event listeners para os botões
+            shuffleBtn.addEventListener('click', shufflePieces);
+            resetBtn.addEventListener('click', resetGame);
+            
+            // Inicializar o jogo
+            initializeBoard();
+            shufflePieces();
+        });
+    </script>
 </body>
 </html>
