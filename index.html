@@ -133,7 +133,7 @@ function loadPhase(fase) {
 
   for (let i = 0; i < 9; i++) {
     const img = document.createElement("img");
-    img.src = `nossas fotos/fase${fase}/piece_${i}.png`;
+    img.src = `fase${fase}/piece_${i}.png`; // <-- caminho atualizado
     img.classList.add("piece");
     img.draggable = true;
     img.dataset.id = i.toString();
