@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Puzzle de Fotos</title>
+<style>
+  body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+  }
+
+  #puzzle-container {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 5px;
+    margin-bottom: 20px;
+  }
+
+  .slot {
+    width: 100px;
+    height: 100px;
+    border: 2px dashed #aaa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slot.correct {
+    border-color: green;
+  }
+
+  .piece {
+    width: 100px;
+    height: 100px;
+    cursor: grab;
+  }
+
+  .pieces-container {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 5px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Complete o Puzzle!</h1>
+
+<div id="puzzle-container">
+  <div class="slot" data-id="1"></div>
+  <div class="slot" data-id="2"></div>
+  <div class="slot" data-id="3"></div>
+  <div class="slot" data-id="4"></div>
+  <div class="slot" data-id="5"></div>
+  <div class="slot" data-id="6"></div>
+  <div class="slot" data-id="7"></div>
+  <div class="slot" data-id="8"></div>
+  <div class="slot" data-id="9"></div>
+</div>
+
+<div class="pieces-container">
+  <img src="nossas fotos/1.png" class="piece" draggable="true" data-id="1">
+  <img src="nossas fotos/2.png" class="piece" draggable="true" data-id="2">
+  <img src="nossas fotos/3.png" class="piece" draggable="true" data-id="3">
+  <img src="nossas fotos/4.png" class="piece" draggable="true" data-id="4">
+  <img src="nossas fotos/5.png" class="piece" draggable="true" data-id="5">
+  <img src="nossas fotos/6.png" class="piece" draggable="true" data-id="6">
+  <img src="nossas fotos/7.png" class="piece" draggable="true" data-id="7">
+  <img src="nossas fotos/8.png" class="piece" draggable="true" data-id="8">
+  <img src="nossas fotos/9.png" class="piece" draggable="true" data-id="9">
+</div>
+
+<script>
+const pieces = document.querySelectorAll('.piece');
+const slots = document.querySelectorAll('.slot');
+let draggedPiece = null;
+
+pieces.forEach(piece => {
+  piece.addEventListener('dragstart', dragStart);
+});
+
+slots.forEach(slot => {
+  slot.addEventListener('dragover', dragOver);
+  slot.addEventListener('drop', dropPiece);
+});
+
+function dragStart(e) {
+  draggedPiece = this;
+}
+
+function dragOver(e) {
+  e.preventDefault();
+}
+
+function dropPiece(e) {
+  if (!this.hasChildNodes()) {
+    this.appendChild(draggedPiece);
+    checkPuzzle();
+  }
+}
+
+function checkPuzzle() {
+  let correct = 0;
+  slots.forEach(slot => {
+    const piece = slot.firstChild;
+    if (piece && piece.dataset.id === slot.dataset.id) {
+      slot.classList.add('correct');
+      correct++;
+    } else {
+      slot.classList.remove('correct');
+    }
+  });
+
+  if (correct === slots.length) {
+    setTimeout(() => alert('Parabéns! 💛 Você completou o puzzle!'), 100);
+  }
+}
+</script>
+
+</body>
+</html>
